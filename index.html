@@ -7,43 +7,76 @@
 <title>카페인 의존도 검사</title>
 
 <style>
+
+/* =====================================================
+   기본 설정
+===================================================== */
+
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
+html,
 body {
-    font-family: "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        "Noto Sans KR",
+        "Malgun Gothic",
+        Arial,
+        sans-serif;
+
     background: #f4eee8;
     color: #3d3027;
-    min-height: 100vh;
+
+    overflow-x: hidden;
 }
 
 button {
     font-family: inherit;
-    cursor: pointer;
     border: none;
+    cursor: pointer;
 }
+
+
+/* =====================================================
+   전체 앱
+===================================================== */
 
 .app {
     width: 100%;
     max-width: 520px;
     min-height: 100vh;
+
     margin: 0 auto;
+
     background: #fffdf9;
+
     overflow: hidden;
+
+    position: relative;
 }
 
-/* =========================
+
+/* =====================================================
    공통 화면
-========================= */
+===================================================== */
 
 .screen {
+    width: 100%;
     min-height: 100vh;
+
     padding: 30px 24px;
+
     display: none;
     flex-direction: column;
+
+    position: relative;
 }
 
 .screen.active {
@@ -51,262 +84,546 @@ button {
 }
 
 
-/* =========================
-   첫 화면
-========================= */
+/* =====================================================
+   시작 화면
+===================================================== */
 
 #startScreen {
     justify-content: center;
+    align-items: center;
+
     text-align: center;
-    padding: 40px 28px;
+
+    padding:
+        40px 28px;
 }
 
 .coffee-icon {
     font-size: 62px;
+
     margin-bottom: 25px;
+
+    animation:
+        coffeeFloat 2.5s ease-in-out infinite;
+}
+
+@keyframes coffeeFloat {
+
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+
 }
 
 .small-title {
     font-size: 13px;
+
     letter-spacing: 2px;
+
     color: #9b7558;
+
     font-weight: 700;
+
     margin-bottom: 16px;
 }
 
 .main-title {
     font-size: 34px;
+
     line-height: 1.3;
+
     font-weight: 900;
+
     letter-spacing: -2px;
+
     word-break: keep-all;
+
     margin-bottom: 20px;
 }
 
 .description {
     font-size: 15px;
+
     line-height: 1.75;
+
     color: #806f63;
+
     word-break: keep-all;
+
     margin-bottom: 40px;
 }
 
 .start-btn {
     width: 100%;
+
     height: 58px;
+
     border-radius: 16px;
+
     background: #704a33;
+
     color: white;
+
     font-size: 17px;
+
     font-weight: 700;
+
+    transition:
+        transform 0.15s,
+        background 0.2s;
+}
+
+.start-btn:hover {
+    background: #5e3d2b;
 }
 
 .start-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 .footer {
     text-align: center;
+
     color: #b0a198;
+
     font-size: 11px;
+
     margin-top: 25px;
 }
 
 
-/* =========================
+/* =====================================================
    검사 화면
-========================= */
+===================================================== */
 
 #quizScreen {
     padding-top: 30px;
+
+    overflow: hidden;
 }
 
+
+/* =====================================================
+   진행률
+===================================================== */
+
 .progress-area {
-    margin-bottom: 42px;
+    margin-bottom: 38px;
+
+    position: relative;
+
+    z-index: 20;
 }
 
 .progress-info {
     display: flex;
+
     justify-content: space-between;
+
     font-size: 13px;
+
     color: #9b8778;
+
     margin-bottom: 10px;
 }
 
 .progress-bar {
     width: 100%;
+
     height: 7px;
+
     background: #eee6de;
+
     border-radius: 10px;
+
     overflow: hidden;
 }
 
 .progress-fill {
     height: 100%;
+
     width: 20%;
+
     background: #80604a;
+
     border-radius: 10px;
-    transition: width 0.3s ease;
+
+    transition:
+        width 0.45s ease;
 }
+
+
+/* =====================================================
+   질문 슬라이드 영역
+===================================================== */
+
+.quiz-slider {
+    width: 100%;
+
+    position: relative;
+
+    overflow: hidden;
+
+    flex: 1;
+}
+
+
+/* 각각의 질문 카드 */
+
+.question-slide {
+    width: 100%;
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+
+    opacity: 0;
+
+    transform:
+        translateX(100%);
+
+    transition:
+        transform 0.45s cubic-bezier(
+            0.22,
+            1,
+            0.36,
+            1
+        ),
+        opacity 0.35s ease;
+
+    pointer-events: none;
+}
+
+.question-slide.active {
+    opacity: 1;
+
+    transform:
+        translateX(0);
+
+    pointer-events: auto;
+}
+
+.question-slide.exit-left {
+    opacity: 0;
+
+    transform:
+        translateX(-100%);
+}
+
+.question-slide.exit-right {
+    opacity: 0;
+
+    transform:
+        translateX(100%);
+}
+
+
+/* =====================================================
+   질문
+===================================================== */
 
 .question-number {
     color: #9b7558;
+
     font-size: 14px;
+
     font-weight: 700;
+
     margin-bottom: 14px;
 }
 
 .question {
     font-size: 25px;
+
     line-height: 1.45;
+
     font-weight: 900;
+
     letter-spacing: -1px;
+
     word-break: keep-all;
+
     margin-bottom: 32px;
 }
 
+
+/* =====================================================
+   답변
+===================================================== */
+
 .answers {
     display: flex;
+
     flex-direction: column;
+
     gap: 11px;
 }
 
 .answer-btn {
     width: 100%;
-    min-height: 58px;
-    border: 1.5px solid #e6ddd5;
-    border-radius: 14px;
-    background: white;
-    color: #4c4037;
-    font-size: 15px;
-    font-weight: 600;
-    text-align: left;
-    padding: 15px 18px;
-    transition: 0.15s;
-}
 
-.answer-btn:active {
-    transform: scale(0.98);
+    min-height: 58px;
+
+    border:
+        1.5px solid #e6ddd5;
+
+    border-radius: 14px;
+
+    background: white;
+
+    color: #4c4037;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    text-align: left;
+
+    padding: 15px 18px;
+
+    transition:
+        transform 0.15s,
+        background 0.15s,
+        border-color 0.15s;
 }
 
 .answer-btn:hover {
     border-color: #9b7558;
+
     background: #faf6f1;
 }
 
+.answer-btn:active {
+    transform: scale(0.97);
+}
 
-/* =========================
-   결과 화면
-========================= */
+
+/* =====================================================
+   결과 화면 진입 애니메이션
+===================================================== */
 
 #resultScreen {
     padding-top: 45px;
+
     padding-bottom: 40px;
 }
 
+#resultScreen.active {
+    animation:
+        resultAppear 0.6s
+        cubic-bezier(
+            0.22,
+            1,
+            0.36,
+            1
+        );
+}
+
+@keyframes resultAppear {
+
+    from {
+        opacity: 0;
+
+        transform:
+            translateY(50px);
+    }
+
+    to {
+        opacity: 1;
+
+        transform:
+            translateY(0);
+    }
+
+}
+
+
+/* =====================================================
+   결과
+===================================================== */
+
 .result-top {
     text-align: center;
+
     margin-bottom: 35px;
 }
 
 .result-label {
     font-size: 13px;
+
     letter-spacing: 2px;
+
     color: #9b7558;
+
     font-weight: 700;
+
     margin-bottom: 12px;
 }
 
 .result-type {
     font-size: 40px;
+
     font-weight: 900;
+
     letter-spacing: -2px;
+
     margin-bottom: 12px;
 }
 
 .result-score {
     display: inline-block;
-    padding: 7px 14px;
+
+    padding:
+        7px 14px;
+
     border-radius: 20px;
+
     background: #f2eae2;
+
     color: #80604a;
+
     font-size: 13px;
+
     font-weight: 700;
 }
 
 .result-card {
     background: #f8f3ed;
+
     border-radius: 20px;
-    padding: 24px 21px;
+
+    padding:
+        24px 21px;
+
     margin-bottom: 14px;
 }
 
 .result-card h3 {
     font-size: 16px;
+
     margin-bottom: 12px;
 }
 
 .result-card p {
     font-size: 14px;
+
     line-height: 1.75;
+
     color: #66574d;
+
     word-break: keep-all;
 }
 
 .action-list {
     list-style: none;
+
     display: flex;
+
     flex-direction: column;
+
     gap: 12px;
 }
 
 .action-list li {
     background: white;
+
     border-radius: 12px;
+
     padding: 15px;
+
     font-size: 14px;
+
     line-height: 1.6;
+
     color: #594b42;
-    border: 1px solid #eadfd5;
+
+    border:
+        1px solid #eadfd5;
 }
 
 .action-list li strong {
     color: #6f4932;
 }
 
+
+/* =====================================================
+   주의 문구
+===================================================== */
+
 .notice {
     font-size: 11px;
+
     color: #9b8d83;
+
     line-height: 1.65;
-    margin: 10px 3px 22px;
+
+    margin:
+        10px 3px 22px;
+
     word-break: keep-all;
 }
 
+
+/* =====================================================
+   결과 버튼
+===================================================== */
+
 .button-group {
     display: flex;
+
     flex-direction: column;
+
     gap: 10px;
+
     margin-top: auto;
 }
 
 .share-btn,
 .retry-btn {
     width: 100%;
+
     height: 54px;
+
     border-radius: 14px;
+
     font-size: 15px;
+
     font-weight: 700;
+
+    transition:
+        transform 0.15s;
 }
 
 .share-btn {
     background: #704a33;
+
     color: white;
 }
 
 .retry-btn {
     background: #eee7e0;
+
     color: #5f5148;
 }
+
+.share-btn:active,
+.retry-btn:active {
+    transform: scale(0.97);
+}
+
+
+/* =====================================================
+   작은 화면 대응
+===================================================== */
 
 @media (max-width: 380px) {
 
@@ -324,55 +641,82 @@ button {
     }
 
 }
+
 </style>
 </head>
 
 
 <body>
 
+
 <div class="app">
 
 
-<!-- ======================================
-     첫 화면
-======================================= -->
+<!-- ==================================================
+     START SCREEN
+================================================== -->
 
-<section id="startScreen" class="screen active">
+<section
+    id="startScreen"
+    class="screen active"
+>
 
-    <div class="coffee-icon">☕</div>
+    <div class="coffee-icon">
+        ☕
+    </div>
+
 
     <div class="small-title">
         CAFFEINE CHECK
     </div>
 
+
     <h1 class="main-title">
+
         당신은 얼마나<br>
         카페인에 중독되어 있나요?
+
     </h1>
 
+
     <p class="description">
+
         평소 카페인 섭취 습관을 바탕으로<br>
         나의 카페인 의존 정도를 확인해보세요.<br>
         약 1분 정도 소요됩니다.
+
     </p>
 
-    <button class="start-btn" onclick="startTest()">
+
+    <button
+        class="start-btn"
+        onclick="startTest()"
+    >
         검사 시작
     </button>
 
+
     <div class="footer">
+
         카페인 섭취 습관 자가점검
+
     </div>
 
 </section>
 
 
 
-<!-- ======================================
-     검사 화면
-======================================= -->
+<!-- ==================================================
+     QUIZ SCREEN
+================================================== -->
 
-<section id="quizScreen" class="screen">
+<section
+    id="quizScreen"
+    class="screen"
+>
+
+
+    <!-- 진행률 -->
 
     <div class="progress-area">
 
@@ -388,11 +732,13 @@ button {
 
         </div>
 
+
         <div class="progress-bar">
 
             <div
                 id="progressFill"
-                class="progress-fill">
+                class="progress-fill"
+            >
             </div>
 
         </div>
@@ -400,33 +746,29 @@ button {
     </div>
 
 
-    <div
-        id="questionNumber"
-        class="question-number">
-        QUESTION 01
-    </div>
 
-
-    <h2
-        id="questionText"
-        class="question">
-    </h2>
-
+    <!-- 질문 슬라이더 -->
 
     <div
-        id="answers"
-        class="answers">
+        id="quizSlider"
+        class="quiz-slider"
+    >
     </div>
+
 
 </section>
 
 
 
-<!-- ======================================
-     결과 화면
-======================================= -->
+<!-- ==================================================
+     RESULT SCREEN
+================================================== -->
 
-<section id="resultScreen" class="screen">
+<section
+    id="resultScreen"
+    class="screen"
+>
+
 
     <div class="result-top">
 
@@ -434,17 +776,22 @@ button {
             YOUR RESULT
         </div>
 
+
         <div
             id="resultType"
-            class="result-type">
+            class="result-type"
+        >
         </div>
+
 
         <div
             id="resultScore"
-            class="result-score">
+            class="result-score"
+        >
         </div>
 
     </div>
+
 
 
     <div class="result-card">
@@ -453,10 +800,14 @@ button {
             어떤 유형인가요?
         </h3>
 
-        <p id="resultDescription">
+
+        <p
+            id="resultDescription"
+        >
         </p>
 
     </div>
+
 
 
     <div class="result-card">
@@ -465,40 +816,52 @@ button {
             지금 해보면 좋은 것
         </h3>
 
+
         <ul
             id="actionList"
-            class="action-list">
+            class="action-list"
+        >
         </ul>
 
     </div>
 
 
+
     <p class="notice">
+
         ※ 이 검사는 카페인 섭취 습관을 확인하기 위한
         자가점검 도구이며 의학적인 진단을 대신하지 않습니다.
         높은 점수가 실제 카페인 사용장애나 의존을 의미하는 것은 아닙니다.
         카페인 섭취로 인해 일상생활에 지속적인 문제가 있다면
         보호자 또는 의료 전문가와 상담하는 것이 좋습니다.
+
     </p>
+
 
 
     <div class="button-group">
 
+
         <button
             class="share-btn"
-            onclick="shareResult()">
+            onclick="shareResult()"
+        >
             결과 링크 공유하기
         </button>
 
+
         <button
             class="retry-btn"
-            onclick="restartTest()">
+            onclick="restartTest()"
+        >
             다시 검사하기
         </button>
+
 
     </div>
 
 </section>
+
 
 </div>
 
@@ -506,88 +869,128 @@ button {
 
 <script>
 
-/* =========================================
-   5개 검사 문항
-========================================= */
+/* =====================================================
+   검사 문항
+===================================================== */
 
 const questions = [
 
     {
+
         question:
             "하루에 카페인이 들어 있는 음료를 얼마나 자주 마시나요?",
 
         answers: [
+
             "거의 마시지 않는다",
+
             "가끔 마신다",
+
             "하루 1번 정도 마신다",
+
             "하루 2~3번 마신다",
+
             "하루 4번 이상 마신다"
+
         ]
+
     },
 
 
     {
+
         question:
             "카페인을 마시지 않으면 두통, 피로감, 집중력 저하 등이 나타나나요?",
 
         answers: [
+
             "전혀 없다",
+
             "거의 없다",
+
             "가끔 있다",
+
             "자주 있다",
+
             "매우 자주 있다"
+
         ]
+
     },
 
 
     {
+
         question:
             "카페인을 줄이거나 끊으려고 했지만 잘 되지 않은 적이 있나요?",
 
         answers: [
+
             "전혀 없다",
+
             "거의 없다",
+
             "가끔 있다",
+
             "자주 있다",
+
             "여러 번 있다"
+
         ]
+
     },
 
 
     {
+
         question:
             "예전보다 더 많은 카페인을 마셔야 같은 효과가 느껴지나요?",
 
         answers: [
+
             "전혀 아니다",
+
             "거의 아니다",
+
             "조금 그렇다",
+
             "그렇다",
+
             "매우 그렇다"
+
         ]
+
     },
 
 
     {
+
         question:
             "카페인 때문에 수면이나 일상생활에 문제가 생긴 적이 있나요?",
 
         answers: [
+
             "전혀 없다",
+
             "거의 없다",
+
             "가끔 있다",
+
             "자주 있다",
+
             "매우 자주 있다"
+
         ]
+
     }
 
 ];
 
 
 
-/* =========================================
-   기본 변수
-========================================= */
+/* =====================================================
+   변수
+===================================================== */
 
 let currentQuestion = 0;
 
@@ -595,60 +998,82 @@ let totalScore = 0;
 
 let finalResult = null;
 
+let isMoving = false;
 
 
-/* =========================================
+
+/* =====================================================
    화면 요소
-========================================= */
+===================================================== */
 
 const startScreen =
-    document.getElementById("startScreen");
+    document.getElementById(
+        "startScreen"
+    );
 
 const quizScreen =
-    document.getElementById("quizScreen");
+    document.getElementById(
+        "quizScreen"
+    );
 
 const resultScreen =
-    document.getElementById("resultScreen");
+    document.getElementById(
+        "resultScreen"
+    );
 
-const questionText =
-    document.getElementById("questionText");
-
-const questionNumber =
-    document.getElementById("questionNumber");
-
-const answers =
-    document.getElementById("answers");
+const quizSlider =
+    document.getElementById(
+        "quizSlider"
+    );
 
 const progressText =
-    document.getElementById("progressText");
+    document.getElementById(
+        "progressText"
+    );
 
 const progressFill =
-    document.getElementById("progressFill");
+    document.getElementById(
+        "progressFill"
+    );
 
 
 
-/* =========================================
+/* =====================================================
    화면 전환
-========================================= */
+===================================================== */
 
 function showScreen(screen) {
 
-    startScreen.classList.remove("active");
+    startScreen.classList.remove(
+        "active"
+    );
 
-    quizScreen.classList.remove("active");
+    quizScreen.classList.remove(
+        "active"
+    );
 
-    resultScreen.classList.remove("active");
+    resultScreen.classList.remove(
+        "active"
+    );
 
-    screen.classList.add("active");
 
-    window.scrollTo(0, 0);
+    screen.classList.add(
+        "active"
+    );
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
 }
 
 
 
-/* =========================================
+/* =====================================================
    검사 시작
-========================================= */
+===================================================== */
 
 function startTest() {
 
@@ -658,122 +1083,274 @@ function startTest() {
 
     finalResult = null;
 
-    showScreen(quizScreen);
+    isMoving = false;
 
-    loadQuestion();
+
+    showScreen(
+        quizScreen
+    );
+
+
+    createQuestionSlides();
+
+
+    updateProgress();
+
 }
 
 
 
-/* =========================================
-   질문 출력
-========================================= */
+/* =====================================================
+   질문 슬라이드 생성
+===================================================== */
 
-function loadQuestion() {
+function createQuestionSlides() {
 
-    const question =
-        questions[currentQuestion];
-
-
-    questionNumber.textContent =
-        "QUESTION " +
-        String(currentQuestion + 1).padStart(2, "0");
+    quizSlider.innerHTML = "";
 
 
-    questionText.textContent =
-        question.question;
+    questions.forEach(
+        function(question, index) {
 
+
+            const slide =
+                document.createElement(
+                    "div"
+                );
+
+
+            slide.className =
+                "question-slide";
+
+
+            if (index === 0) {
+
+                slide.classList.add(
+                    "active"
+                );
+
+            }
+
+
+            const number =
+                document.createElement(
+                    "div"
+                );
+
+
+            number.className =
+                "question-number";
+
+
+            number.textContent =
+                "QUESTION " +
+                String(index + 1)
+                    .padStart(2, "0");
+
+
+            const title =
+                document.createElement(
+                    "h2"
+                );
+
+
+            title.className =
+                "question";
+
+
+            title.textContent =
+                question.question;
+
+
+            const answerArea =
+                document.createElement(
+                    "div"
+                );
+
+
+            answerArea.className =
+                "answers";
+
+
+            question.answers.forEach(
+                function(answer, answerIndex) {
+
+
+                    const button =
+                        document.createElement(
+                            "button"
+                        );
+
+
+                    button.className =
+                        "answer-btn";
+
+
+                    button.textContent =
+                        answer;
+
+
+                    button.onclick =
+                        function() {
+
+                            selectAnswer(
+                                answerIndex
+                            );
+
+                        };
+
+
+                    answerArea.appendChild(
+                        button
+                    );
+
+                }
+            );
+
+
+            slide.appendChild(
+                number
+            );
+
+
+            slide.appendChild(
+                title
+            );
+
+
+            slide.appendChild(
+                answerArea
+            );
+
+
+            quizSlider.appendChild(
+                slide
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   진행률
+===================================================== */
+
+function updateProgress() {
 
     progressText.textContent =
         `${currentQuestion + 1} / ${questions.length}`;
 
 
     const percentage =
-        ((currentQuestion + 1) / questions.length) * 100;
+        (
+            (currentQuestion + 1)
+            /
+            questions.length
+        ) * 100;
 
 
     progressFill.style.width =
         percentage + "%";
 
-
-    answers.innerHTML = "";
-
-
-    question.answers.forEach(
-        function(answer, index) {
-
-            const button =
-                document.createElement("button");
-
-
-            button.className =
-                "answer-btn";
-
-
-            button.textContent =
-                answer;
-
-
-            button.onclick =
-                function() {
-
-                    selectAnswer(index);
-
-                };
-
-
-            answers.appendChild(button);
-
-        }
-    );
 }
 
 
 
-/* =========================================
+/* =====================================================
    답변 선택
-========================================= */
+===================================================== */
 
-function selectAnswer(index) {
+function selectAnswer(
+    answerIndex
+) {
 
-    /*
-        index:
-        0 = 0점
-        1 = 1점
-        2 = 2점
-        3 = 3점
-        4 = 4점
-    */
+    if (isMoving) {
 
-    totalScore += index;
+        return;
+
+    }
+
+
+    isMoving = true;
+
+
+    totalScore +=
+        answerIndex;
+
+
+    const slides =
+        document.querySelectorAll(
+            ".question-slide"
+        );
+
+
+    const currentSlide =
+        slides[currentQuestion];
+
+
+    currentSlide.classList.add(
+        "exit-left"
+    );
 
 
     currentQuestion++;
 
 
     if (
-        currentQuestion <
+        currentQuestion
+        <
         questions.length
     ) {
 
-        setTimeout(
-            function() {
 
-                loadQuestion();
+        const nextSlide =
+            slides[currentQuestion];
 
-            },
-            120
+
+        /*
+            처음에는 오른쪽에 배치
+        */
+
+        nextSlide.classList.add(
+            "active"
         );
 
-    } else {
+
+        /*
+            브라우저가 위치를 계산할 시간을 줌
+        */
+
+        requestAnimationFrame(
+            function() {
+
+                updateProgress();
+
+                isMoving = false;
+
+            }
+        );
+
+
+    }
+
+    else {
+
+
+        updateProgress();
+
 
         setTimeout(
             function() {
 
                 showResult();
 
+                isMoving = false;
+
             },
-            120
+            420
         );
 
     }
@@ -782,9 +1359,9 @@ function selectAnswer(index) {
 
 
 
-/* =========================================
+/* =====================================================
    결과 계산
-========================================= */
+===================================================== */
 
 function showResult() {
 
@@ -792,23 +1369,28 @@ function showResult() {
 
 
     /*
-        총점: 0 ~ 20점
+        총점
 
-        0~4     건강
-        5~9     주의
-        10~14   중독
-        15~20   매우 심각
+        0 ~ 4   : 건강
+        5 ~ 9   : 주의
+        10 ~ 14 : 중독
+        15 ~ 20 : 매우 심각
     */
 
 
-    if (totalScore <= 4) {
+    if (
+        totalScore <= 4
+    ) {
+
 
         result = {
 
             type: "건강",
 
+
             description:
                 "현재 카페인 섭취 습관에서 뚜렷한 의존 신호가 나타나는 정도가 낮은 편임. 현재의 섭취 습관을 유지하면서 카페인 섭취량과 시간을 관리하는 것이 좋음.",
+
 
             actions: [
 
@@ -828,14 +1410,19 @@ function showResult() {
     }
 
 
-    else if (totalScore <= 9) {
+    else if (
+        totalScore <= 9
+    ) {
+
 
         result = {
 
             type: "주의",
 
+
             description:
                 "카페인 섭취가 어느 정도 습관화되어 있거나 일부 의존 신호가 나타날 수 있는 상태임. 특히 수면이나 피로에 영향을 받고 있다면 섭취 습관을 점검할 필요가 있음.",
+
 
             actions: [
 
@@ -855,14 +1442,19 @@ function showResult() {
     }
 
 
-    else if (totalScore <= 14) {
+    else if (
+        totalScore <= 14
+    ) {
+
 
         result = {
 
             type: "중독",
 
+
             description:
                 "카페인 섭취를 조절하기 어렵거나 금단, 내성, 수면 문제 등 여러 의존 관련 신호가 나타날 가능성이 있는 상태임. 자신의 카페인 섭취 패턴을 적극적으로 점검할 필요가 있음.",
+
 
             actions: [
 
@@ -884,12 +1476,15 @@ function showResult() {
 
     else {
 
+
         result = {
 
             type: "매우 심각",
 
+
             description:
                 "카페인 섭취와 관련된 의존 신호가 여러 영역에서 강하게 나타나는 상태임. 카페인이 수면이나 일상생활에 영향을 주고 있는지 확인하고 섭취 습관을 조절할 필요가 있음.",
+
 
             actions: [
 
@@ -909,23 +1504,33 @@ function showResult() {
     }
 
 
-    finalResult = result;
+    finalResult =
+        result;
 
 
-    document.getElementById("resultType").textContent =
+    document.getElementById(
+        "resultType"
+    ).textContent =
         result.type;
 
 
-    document.getElementById("resultScore").textContent =
-        totalScore + " / 20점";
+    document.getElementById(
+        "resultScore"
+    ).textContent =
+        totalScore +
+        " / 20점";
 
 
-    document.getElementById("resultDescription").textContent =
+    document.getElementById(
+        "resultDescription"
+    ).textContent =
         result.description;
 
 
     const actionList =
-        document.getElementById("actionList");
+        document.getElementById(
+            "actionList"
+        );
 
 
     actionList.innerHTML = "";
@@ -934,29 +1539,39 @@ function showResult() {
     result.actions.forEach(
         function(action) {
 
+
             const li =
-                document.createElement("li");
+                document.createElement(
+                    "li"
+                );
+
 
             li.innerHTML =
                 action;
 
-            actionList.appendChild(li);
+
+            actionList.appendChild(
+                li
+            );
 
         }
     );
 
 
-    showScreen(resultScreen);
+    showScreen(
+        resultScreen
+    );
 
 }
 
 
 
-/* =========================================
+/* =====================================================
    결과 링크 공유
-========================================= */
+===================================================== */
 
 async function shareResult() {
+
 
     const resultName =
         finalResult
@@ -972,16 +1587,25 @@ async function shareResult() {
 
     const shareData = {
 
-        title: "카페인 의존도 검사",
+        title:
+            "카페인 의존도 검사",
 
-        text: shareText,
+        text:
+            shareText,
 
-        url: window.location.href
+        url:
+            window.location.href
 
     };
 
 
     try {
+
+
+        /*
+            휴대폰에서는
+            기본 공유창 실행
+        */
 
         if (
             navigator.share &&
@@ -990,17 +1614,26 @@ async function shareResult() {
             )
         ) {
 
+
             await navigator.share(
                 shareData
             );
 
+
         }
 
+
+        /*
+            PC에서는 링크 복사
+        */
+
         else {
+
 
             await navigator.clipboard.writeText(
                 window.location.href
             );
+
 
             alert(
                 "검사 링크가 복사되었습니다."
@@ -1008,34 +1641,54 @@ async function shareResult() {
 
         }
 
+
     }
+
 
     catch (error) {
 
+
+        /*
+            공유창을 닫은 경우
+            아무것도 하지 않음
+        */
+
         if (
-            error.name !==
+            error.name ===
             "AbortError"
         ) {
 
-            try {
+            return;
 
-                await navigator.clipboard.writeText(
-                    window.location.href
-                );
+        }
 
-                alert(
-                    "검사 링크가 복사되었습니다."
-                );
 
-            }
+        /*
+            복사 기능 재시도
+        */
 
-            catch {
+        try {
 
-                alert(
-                    "현재 브라우저에서는 링크 공유를 사용할 수 없습니다."
-                );
 
-            }
+            await navigator.clipboard.writeText(
+                window.location.href
+            );
+
+
+            alert(
+                "검사 링크가 복사되었습니다."
+            );
+
+
+        }
+
+
+        catch {
+
+
+            alert(
+                "현재 브라우저에서는 링크 공유를 사용할 수 없습니다."
+            );
 
         }
 
@@ -1045,9 +1698,9 @@ async function shareResult() {
 
 
 
-/* =========================================
+/* =====================================================
    다시 검사
-========================================= */
+===================================================== */
 
 function restartTest() {
 
@@ -1057,11 +1710,17 @@ function restartTest() {
 
     finalResult = null;
 
-    showScreen(startScreen);
+    isMoving = false;
+
+
+    showScreen(
+        startScreen
+    );
 
 }
 
 </script>
+
 
 </body>
 </html>
