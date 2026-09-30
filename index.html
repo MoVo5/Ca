@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>카페인 의존도 검사</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Noto Sans KR", "Malgun Gothic", Arial, sans-serif;
+    background: #f4eee8;
+    color: #3d3027;
+    min-height: 100vh;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+}
+
+.app {
+    width: 100%;
+    max-width: 520px;
+    min-height: 100vh;
+    margin: 0 auto;
+    background: #fffdf9;
+    overflow: hidden;
+}
+
+/* =========================
+   공통 화면
+========================= */
+
+.screen {
+    min-height: 100vh;
+    padding: 30px 24px;
+    display: none;
+    flex-direction: column;
+}
+
+.screen.active {
+    display: flex;
+}
+
+
+/* =========================
+   첫 화면
+========================= */
+
+#startScreen {
+    justify-content: center;
+    text-align: center;
+    padding: 40px 28px;
+}
+
+.coffee-icon {
+    font-size: 62px;
+    margin-bottom: 25px;
+}
+
+.small-title {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #9b7558;
+    font-weight: 700;
+    margin-bottom: 16px;
+}
+
+.main-title {
+    font-size: 34px;
+    line-height: 1.3;
+    font-weight: 900;
+    letter-spacing: -2px;
+    word-break: keep-all;
+    margin-bottom: 20px;
+}
+
+.description {
+    font-size: 15px;
+    line-height: 1.75;
+    color: #806f63;
+    word-break: keep-all;
+    margin-bottom: 40px;
+}
+
+.start-btn {
+    width: 100%;
+    height: 58px;
+    border-radius: 16px;
+    background: #704a33;
+    color: white;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.start-btn:active {
+    transform: scale(0.98);
+}
+
+.footer {
+    text-align: center;
+    color: #b0a198;
+    font-size: 11px;
+    margin-top: 25px;
+}
+
+
+/* =========================
+   검사 화면
+========================= */
+
+#quizScreen {
+    padding-top: 30px;
+}
+
+.progress-area {
+    margin-bottom: 42px;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #9b8778;
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 7px;
+    background: #eee6de;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 20%;
+    background: #80604a;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.question-number {
+    color: #9b7558;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+}
+
+.question {
+    font-size: 25px;
+    line-height: 1.45;
+    font-weight: 900;
+    letter-spacing: -1px;
+    word-break: keep-all;
+    margin-bottom: 32px;
+}
+
+.answers {
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+}
+
+.answer-btn {
+    width: 100%;
+    min-height: 58px;
+    border: 1.5px solid #e6ddd5;
+    border-radius: 14px;
+    background: white;
+    color: #4c4037;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+    padding: 15px 18px;
+    transition: 0.15s;
+}
+
+.answer-btn:active {
+    transform: scale(0.98);
+}
+
+.answer-btn:hover {
+    border-color: #9b7558;
+    background: #faf6f1;
+}
+
+
+/* =========================
+   결과 화면
+========================= */
+
+#resultScreen {
+    padding-top: 45px;
+    padding-bottom: 40px;
+}
+
+.result-top {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.result-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #9b7558;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.result-type {
+    font-size: 40px;
+    font-weight: 900;
+    letter-spacing: -2px;
+    margin-bottom: 12px;
+}
+
+.result-score {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 20px;
+    background: #f2eae2;
+    color: #80604a;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.result-card {
+    background: #f8f3ed;
+    border-radius: 20px;
+    padding: 24px 21px;
+    margin-bottom: 14px;
+}
+
+.result-card h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+.result-card p {
+    font-size: 14px;
+    line-height: 1.75;
+    color: #66574d;
+    word-break: keep-all;
+}
+
+.action-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.action-list li {
+    background: white;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #594b42;
+    border: 1px solid #eadfd5;
+}
+
+.action-list li strong {
+    color: #6f4932;
+}
+
+.notice {
+    font-size: 11px;
+    color: #9b8d83;
+    line-height: 1.65;
+    margin: 10px 3px 22px;
+    word-break: keep-all;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.share-btn,
+.retry-btn {
+    width: 100%;
+    height: 54px;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.share-btn {
+    background: #704a33;
+    color: white;
+}
+
+.retry-btn {
+    background: #eee7e0;
+    color: #5f5148;
+}
+
+@media (max-width: 380px) {
+
+    .main-title {
+        font-size: 30px;
+    }
+
+    .question {
+        font-size: 22px;
+    }
+
+    .screen {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+}
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+<!-- ======================================
+     첫 화면
+======================================= -->
+
+<section id="startScreen" class="screen active">
+
+    <div class="coffee-icon">☕</div>
+
+    <div class="small-title">
+        CAFFEINE CHECK
+    </div>
+
+    <h1 class="main-title">
+        당신은 얼마나<br>
+        카페인에 중독되어 있나요?
+    </h1>
+
+    <p class="description">
+        평소 카페인 섭취 습관을 바탕으로<br>
+        나의 카페인 의존 정도를 확인해보세요.<br>
+        약 1분 정도 소요됩니다.
+    </p>
+
+    <button class="start-btn" onclick="startTest()">
+        검사 시작
+    </button>
+
+    <div class="footer">
+        카페인 섭취 습관 자가점검
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     검사 화면
+======================================= -->
+
+<section id="quizScreen" class="screen">
+
+    <div class="progress-area">
+
+        <div class="progress-info">
+
+            <span id="progressText">
+                1 / 5
+            </span>
+
+            <span>
+                CAFFEINE CHECK
+            </span>
+
+        </div>
+
+        <div class="progress-bar">
+
+            <div
+                id="progressFill"
+                class="progress-fill">
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div
+        id="questionNumber"
+        class="question-number">
+        QUESTION 01
+    </div>
+
+
+    <h2
+        id="questionText"
+        class="question">
+    </h2>
+
+
+    <div
+        id="answers"
+        class="answers">
+    </div>
+
+</section>
+
+
+
+<!-- ======================================
+     결과 화면
+======================================= -->
+
+<section id="resultScreen" class="screen">
+
+    <div class="result-top">
+
+        <div class="result-label">
+            YOUR RESULT
+        </div>
+
+        <div
+            id="resultType"
+            class="result-type">
+        </div>
+
+        <div
+            id="resultScore"
+            class="result-score">
+        </div>
+
+    </div>
+
+
+    <div class="result-card">
+
+        <h3>
+            어떤 유형인가요?
+        </h3>
+
+        <p id="resultDescription">
+        </p>
+
+    </div>
+
+
+    <div class="result-card">
+
+        <h3>
+            지금 해보면 좋은 것
+        </h3>
+
+        <ul
+            id="actionList"
+            class="action-list">
+        </ul>
+
+    </div>
+
+
+    <p class="notice">
+        ※ 이 검사는 카페인 섭취 습관을 확인하기 위한
+        자가점검 도구이며 의학적인 진단을 대신하지 않습니다.
+        높은 점수가 실제 카페인 사용장애나 의존을 의미하는 것은 아닙니다.
+        카페인 섭취로 인해 일상생활에 지속적인 문제가 있다면
+        보호자 또는 의료 전문가와 상담하는 것이 좋습니다.
+    </p>
+
+
+    <div class="button-group">
+
+        <button
+            class="share-btn"
+            onclick="shareResult()">
+            결과 링크 공유하기
+        </button>
+
+        <button
+            class="retry-btn"
+            onclick="restartTest()">
+            다시 검사하기
+        </button>
+
+    </div>
+
+</section>
+
+</div>
+
+
+
+<script>
+
+/* =========================================
+   5개 검사 문항
+========================================= */
+
+const questions = [
+
+    {
+        question:
+            "하루에 카페인이 들어 있는 음료를 얼마나 자주 마시나요?",
+
+        answers: [
+            "거의 마시지 않는다",
+            "가끔 마신다",
+            "하루 1번 정도 마신다",
+            "하루 2~3번 마신다",
+            "하루 4번 이상 마신다"
+        ]
+    },
+
+
+    {
+        question:
+            "카페인을 마시지 않으면 두통, 피로감, 집중력 저하 등이 나타나나요?",
+
+        answers: [
+            "전혀 없다",
+            "거의 없다",
+            "가끔 있다",
+            "자주 있다",
+            "매우 자주 있다"
+        ]
+    },
+
+
+    {
+        question:
+            "카페인을 줄이거나 끊으려고 했지만 잘 되지 않은 적이 있나요?",
+
+        answers: [
+            "전혀 없다",
+            "거의 없다",
+            "가끔 있다",
+            "자주 있다",
+            "여러 번 있다"
+        ]
+    },
+
+
+    {
+        question:
+            "예전보다 더 많은 카페인을 마셔야 같은 효과가 느껴지나요?",
+
+        answers: [
+            "전혀 아니다",
+            "거의 아니다",
+            "조금 그렇다",
+            "그렇다",
+            "매우 그렇다"
+        ]
+    },
+
+
+    {
+        question:
+            "카페인 때문에 수면이나 일상생활에 문제가 생긴 적이 있나요?",
+
+        answers: [
+            "전혀 없다",
+            "거의 없다",
+            "가끔 있다",
+            "자주 있다",
+            "매우 자주 있다"
+        ]
+    }
+
+];
+
+
+
+/* =========================================
+   기본 변수
+========================================= */
+
+let currentQuestion = 0;
+
+let totalScore = 0;
+
+let finalResult = null;
+
+
+
+/* =========================================
+   화면 요소
+========================================= */
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const quizScreen =
+    document.getElementById("quizScreen");
+
+const resultScreen =
+    document.getElementById("resultScreen");
+
+const questionText =
+    document.getElementById("questionText");
+
+const questionNumber =
+    document.getElementById("questionNumber");
+
+const answers =
+    document.getElementById("answers");
+
+const progressText =
+    document.getElementById("progressText");
+
+const progressFill =
+    document.getElementById("progressFill");
+
+
+
+/* =========================================
+   화면 전환
+========================================= */
+
+function showScreen(screen) {
+
+    startScreen.classList.remove("active");
+
+    quizScreen.classList.remove("active");
+
+    resultScreen.classList.remove("active");
+
+    screen.classList.add("active");
+
+    window.scrollTo(0, 0);
+}
+
+
+
+/* =========================================
+   검사 시작
+========================================= */
+
+function startTest() {
+
+    currentQuestion = 0;
+
+    totalScore = 0;
+
+    finalResult = null;
+
+    showScreen(quizScreen);
+
+    loadQuestion();
+}
+
+
+
+/* =========================================
+   질문 출력
+========================================= */
+
+function loadQuestion() {
+
+    const question =
+        questions[currentQuestion];
+
+
+    questionNumber.textContent =
+        "QUESTION " +
+        String(currentQuestion + 1).padStart(2, "0");
+
+
+    questionText.textContent =
+        question.question;
+
+
+    progressText.textContent =
+        `${currentQuestion + 1} / ${questions.length}`;
+
+
+    const percentage =
+        ((currentQuestion + 1) / questions.length) * 100;
+
+
+    progressFill.style.width =
+        percentage + "%";
+
+
+    answers.innerHTML = "";
+
+
+    question.answers.forEach(
+        function(answer, index) {
+
+            const button =
+                document.createElement("button");
+
+
+            button.className =
+                "answer-btn";
+
+
+            button.textContent =
+                answer;
+
+
+            button.onclick =
+                function() {
+
+                    selectAnswer(index);
+
+                };
+
+
+            answers.appendChild(button);
+
+        }
+    );
+}
+
+
+
+/* =========================================
+   답변 선택
+========================================= */
+
+function selectAnswer(index) {
+
+    /*
+        index:
+        0 = 0점
+        1 = 1점
+        2 = 2점
+        3 = 3점
+        4 = 4점
+    */
+
+    totalScore += index;
+
+
+    currentQuestion++;
+
+
+    if (
+        currentQuestion <
+        questions.length
+    ) {
+
+        setTimeout(
+            function() {
+
+                loadQuestion();
+
+            },
+            120
+        );
+
+    } else {
+
+        setTimeout(
+            function() {
+
+                showResult();
+
+            },
+            120
+        );
+
+    }
+
+}
+
+
+
+/* =========================================
+   결과 계산
+========================================= */
+
+function showResult() {
+
+    let result;
+
+
+    /*
+        총점: 0 ~ 20점
+
+        0~4     건강
+        5~9     주의
+        10~14   중독
+        15~20   매우 심각
+    */
+
+
+    if (totalScore <= 4) {
+
+        result = {
+
+            type: "건강",
+
+            description:
+                "현재 카페인 섭취 습관에서 뚜렷한 의존 신호가 나타나는 정도가 낮은 편임. 현재의 섭취 습관을 유지하면서 카페인 섭취량과 시간을 관리하는 것이 좋음.",
+
+            actions: [
+
+                "<strong>① 현재 습관 유지하기</strong><br>" +
+                "카페인 섭취량과 빈도를 갑자기 늘리지 않기",
+
+                "<strong>② 수면 관리하기</strong><br>" +
+                "늦은 시간의 카페인 섭취를 피하고 충분히 자기",
+
+                "<strong>③ 섭취량 확인하기</strong><br>" +
+                "커피뿐 아니라 에너지음료와 차 등에 포함된 카페인도 확인하기"
+
+            ]
+
+        };
+
+    }
+
+
+    else if (totalScore <= 9) {
+
+        result = {
+
+            type: "주의",
+
+            description:
+                "카페인 섭취가 어느 정도 습관화되어 있거나 일부 의존 신호가 나타날 수 있는 상태임. 특히 수면이나 피로에 영향을 받고 있다면 섭취 습관을 점검할 필요가 있음.",
+
+            actions: [
+
+                "<strong>① 섭취량 기록하기</strong><br>" +
+                "일주일 동안 마신 카페인 음료와 시간을 기록하기",
+
+                "<strong>② 늦은 시간 피하기</strong><br>" +
+                "오후 늦게나 취침 전 카페인 섭취 줄이기",
+
+                "<strong>③ 조금씩 줄이기</strong><br>" +
+                "카페인을 줄일 경우 갑자기 끊기보다 점진적으로 줄이기"
+
+            ]
+
+        };
+
+    }
+
+
+    else if (totalScore <= 14) {
+
+        result = {
+
+            type: "중독",
+
+            description:
+                "카페인 섭취를 조절하기 어렵거나 금단, 내성, 수면 문제 등 여러 의존 관련 신호가 나타날 가능성이 있는 상태임. 자신의 카페인 섭취 패턴을 적극적으로 점검할 필요가 있음.",
+
+            actions: [
+
+                "<strong>① 섭취량 줄이기</strong><br>" +
+                "평소보다 적은 양으로 단계적으로 줄여나가기",
+
+                "<strong>② 대체 음료 활용하기</strong><br>" +
+                "물이나 카페인이 없는 음료를 선택하기",
+
+                "<strong>③ 섭취 기록하기</strong><br>" +
+                "언제, 얼마나 마시는지 기록하면서 습관 파악하기"
+
+            ]
+
+        };
+
+    }
+
+
+    else {
+
+        result = {
+
+            type: "매우 심각",
+
+            description:
+                "카페인 섭취와 관련된 의존 신호가 여러 영역에서 강하게 나타나는 상태임. 카페인이 수면이나 일상생활에 영향을 주고 있는지 확인하고 섭취 습관을 조절할 필요가 있음.",
+
+            actions: [
+
+                "<strong>① 전문가와 상담하기</strong><br>" +
+                "카페인 섭취로 일상생활에 지속적인 문제가 있다면 의료 전문가와 상담하기",
+
+                "<strong>② 섭취량 관리하기</strong><br>" +
+                "하루 섭취량과 섭취 시간을 기록하고 점진적으로 조절하기",
+
+                "<strong>③ 갑작스럽게 끊지 않기</strong><br>" +
+                "카페인을 많이 섭취해왔다면 갑자기 크게 줄이기보다 점진적으로 줄이기"
+
+            ]
+
+        };
+
+    }
+
+
+    finalResult = result;
+
+
+    document.getElementById("resultType").textContent =
+        result.type;
+
+
+    document.getElementById("resultScore").textContent =
+        totalScore + " / 20점";
+
+
+    document.getElementById("resultDescription").textContent =
+        result.description;
+
+
+    const actionList =
+        document.getElementById("actionList");
+
+
+    actionList.innerHTML = "";
+
+
+    result.actions.forEach(
+        function(action) {
+
+            const li =
+                document.createElement("li");
+
+            li.innerHTML =
+                action;
+
+            actionList.appendChild(li);
+
+        }
+    );
+
+
+    showScreen(resultScreen);
+
+}
+
+
+
+/* =========================================
+   결과 링크 공유
+========================================= */
+
+async function shareResult() {
+
+    const resultName =
+        finalResult
+            ? finalResult.type
+            : "카페인 검사 결과";
+
+
+    const shareText =
+        "나의 카페인 의존도 검사 결과는 '" +
+        resultName +
+        "' 유형입니다.";
+
+
+    const shareData = {
+
+        title: "카페인 의존도 검사",
+
+        text: shareText,
+
+        url: window.location.href
+
+    };
+
+
+    try {
+
+        if (
+            navigator.share &&
+            /Mobi|Android|iPhone|iPad/i.test(
+                navigator.userAgent
+            )
+        ) {
+
+            await navigator.share(
+                shareData
+            );
+
+        }
+
+        else {
+
+            await navigator.clipboard.writeText(
+                window.location.href
+            );
+
+            alert(
+                "검사 링크가 복사되었습니다."
+            );
+
+        }
+
+    }
+
+    catch (error) {
+
+        if (
+            error.name !==
+            "AbortError"
+        ) {
+
+            try {
+
+                await navigator.clipboard.writeText(
+                    window.location.href
+                );
+
+                alert(
+                    "검사 링크가 복사되었습니다."
+                );
+
+            }
+
+            catch {
+
+                alert(
+                    "현재 브라우저에서는 링크 공유를 사용할 수 없습니다."
+                );
+
+            }
+
+        }
+
+    }
+
+}
+
+
+
+/* =========================================
+   다시 검사
+========================================= */
+
+function restartTest() {
+
+    currentQuestion = 0;
+
+    totalScore = 0;
+
+    finalResult = null;
+
+    showScreen(startScreen);
+
+}
+
+</script>
+
+</body>
+</html>
